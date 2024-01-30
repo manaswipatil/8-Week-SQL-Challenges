@@ -48,5 +48,54 @@ There are some `null` values in the data that needs fixing up.
 We will use `#customer_orders_cleaned` temporary table for all the queries.
 
 ### Table: `runner_orders`
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/c5678ad4-1cc0-45f7-859a-6718bf75c456" />
+
+- The values in columns distance and duration has suffix as 'km', 'mins', 'minutes' etc., alsong with null values.
+- The columns pickup_time and cancellation contains `NULL` values/ 'null' as string values.
+- Created a temporary table with all the columns and fixed the `NULL` values / blank/empty values by replacing with a empty string ''.
+- trimmed the values in distance and cancellation column to remove suffix.
+- fixed datatypes for columns - `pickup_time` `distance` `duration`
+
+```sql
+ SELECT
+  order_id,
+  runner_id,
+  CASE 
+	WHEN pickup_time IN (' ', 'null') OR pickup_time is null THEN ''
+	ELSE pickup_time
+	END AS pickup_time,
+  CASE 
+	WHEN distance IN (' ', 'null') OR distance is null THEN ''
+	WHEN distance LIKE '%km' THEN TRIM('km' from distance)
+	ELSE distance
+  END AS distance,
+  CASE 
+	WHEN duration IN (' ', 'null') OR duration is null THEN ''
+	WHEN duration LIKE '%mins%' THEN TRIM('mins' from duration)
+	WHEN duration LIKE '%minute' THEN TRIM('minute' from duration)
+	WHEN duration LIKE '%minutes' THEN TRIM('minutes' from duration)
+	
+	ELSE duration
+  END AS duration,
+  CASE 
+	WHEN cancellation IN (' ', 'null') OR cancellation is null THEN ''
+	ELSE cancellation
+  END AS cancellation
+  INTO #runner_orders_cleaned
+  From runner_orders;
+
+ alter table #runner_orders_cleaned
+  alter column pickup_time datetime;
+  alter table #runner_orders_cleaned
+  alter column distance float;
+  alter table #runner_orders_cleaned
+  alter column duration integer;
+
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/f2f537bd-0ea5-4383-b555-ade8df550f55" />
+
+We will use `#runner_orders_cleaned` temporary table for all the queries.
+
+
 
 

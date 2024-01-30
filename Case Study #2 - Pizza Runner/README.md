@@ -1,5 +1,5 @@
 # Case Study #2 - Pizza Runner
-<img src="https://8weeksqlchallenge.com/images/case-study-designs/2.png" height=620 width=500 />
+<p align="center"> <img src="https://8weeksqlchallenge.com/images/case-study-designs/2.png" height=620 width=500 > </p>
 
 ## Business Task
 Did you know that over 115 million kilograms of pizza is consumed daily worldwide??? (Well according to Wikipedia anyway…)
@@ -96,6 +96,116 @@ We will use `#customer_orders_cleaned` temporary table for all the queries.
 
 We will use `#runner_orders_cleaned` temporary table for all the queries.
 
+## Case Study Questions & Solutions
 
+## A. Pizza Metrics
+
+### 1. How many pizzas were ordered?
+````sql
+SELECT COUNT(*) AS pizza_order_count
+FROM #customer_orders_cleaned;
+````
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/71ca6a35-c82e-47e5-8224-87725719b2e0" >
+
+### 2. How many unique customer orders were made?
+````sql
+SELECT COUNT(DISTINCT order_id) AS unique_orders_count
+FROM #customer_orders_cleaned;
+````
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/05a41987-c707-4ec6-b522-dc0cb1b87a4d" >
+
+### 3. How many successful orders were delivered by each runner?
+```sql
+SELECT 
+	runner_id, 
+	COUNT(order_id) AS successful_orders_count
+FROM #runner_orders_cleaned
+WHERE cancellation = ''
+GROUP BY runner_id;
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/d73b22fd-bc89-426f-882f-e1c5b4692594" >
+
+### 4. How many of each type of pizza was delivered?
+```sql
+SELECT 
+	p.pizza_name, 
+	COUNT(c.pizza_id) AS delivered_pizzas_count
+FROM #customer_orders_cleaned c
+JOIN #runner_orders_cleaned r ON c.order_id = r.order_id
+JOIN pizza_names p ON c.pizza_id = p.pizza_id
+WHERE r.cancellation = ''
+GROUP BY p.pizza_name
+;
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/cd8da373-0a13-4577-a49d-f8b3846d1b05" >
+
+### 5. How many Vegetarian and Meatlovers were ordered by each customer?
+```sql
+SELECT 
+	c.customer_id,
+	p.pizza_name, 
+	COUNT(c.pizza_id) AS delivered_pizzas_count
+FROM #customer_orders_cleaned c
+JOIN pizza_names p ON c.pizza_id = p.pizza_id
+GROUP BY c.customer_id, p.pizza_name
+ORDER BY c.customer_id, p.pizza_name
+;
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/bed5b525-5da1-4f6e-b320-6a77d749edf7" >
+
+### 6. What was the maximum number of pizzas delivered in a single order?
+```sql
+SELECT
+	c.order_id,
+	COUNT(c.pizza_id) AS max_pizza_delivered
+FROM #customer_orders_cleaned c
+JOIN #runner_orders_cleaned r ON c.order_id = r.order_id
+WHERE r.cancellation = ''
+GROUP BY c.order_id
+ORDER BY c.order_id
+;
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/19456c56-b8f3-4e50-8e4c-3ec40cd00d87" >
+
+### 7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+```sql
+SELECT
+	customer_id,
+	SUM(CASE
+		WHEN exclusions <> '' OR extras <> '' THEN 1
+		ELSE 0
+		END) AS "least 1 change",
+
+	SUM(CASE
+		WHEN exclusions = '' AND extras = '' THEN 1
+		ELSE 0
+		END) AS "No Changes"
+FROM #customer_orders_cleaned c
+JOIN #runner_orders_cleaned r ON c.order_id = r.order_id
+WHERE r.cancellation = ''
+GROUP BY customer_id
+ORDER BY customer_id
+;
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/dae1dc5f-b285-4c96-bc62-8f10f773395c" >
+
+### 8. How many pizzas were delivered that had both exclusions and extras?
+```sql
+SELECT
+	COUNT(c.order_id) AS "pizza with exclusions & extras"
+FROM #customer_orders_cleaned c
+JOIN #runner_orders_cleaned r 
+ON c.order_id = r.order_id
+WHERE r.cancellation = ''
+AND exclusions <> '' 
+AND extras <> ''
+;
+```
+<img src="https://github.com/manaswipatil/8-Week-SQL-Challenges/assets/50437663/63941a57-5bd6-46b3-ba66-c299b132dee0" >
+
+### 9. What was the total volume of pizzas ordered for each hour of the day?
+                                                                       
+
+### 10. What was the volume of orders for each day of the week?
 
 
